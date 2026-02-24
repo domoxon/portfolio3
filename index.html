@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B3 — Creative Marketing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-secondary: #111111;
+            --text-primary: #fafafa;
+            --text-muted: #666666;
+            --accent: #c8ff00;
+            --accent-dim: #8fb300;
+            --serif: 'Instrument Serif', Georgia, serif;
+            --mono: 'Space Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--mono);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100000;
+            transition: transform 0.15s ease-out, width 0.2s, height 0.2s, border-color 0.2s;
+            transform: translate(-50%, -50%);
+            left: -100px;
+            top: -100px;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100001;
+            transform: translate(-50%, -50%);
+            left: -100px;
+            top: -100px;
+            mix-blend-mode: difference;
+        }
+
+        .cursor.hovering {
+            width: 50px;
+            height: 50px;
+            border-color: var(--text-primary);
+            background: rgba(200, 255, 0, 0.1);
+        }
+
+        .magnetic {
+            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            mix-blend-mode: difference;
+        }
+
+        .nav-logo {
+            font-family: var(--serif);
+            font-size: 1.5rem;
+            font-style: italic;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(200, 255, 0, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(200, 255, 0, 0.05) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .hero-grain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.4;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeSlideUp 0.8s ease forwards 0.2s;
+        }
+
+        .hero-title {
+            font-family: var(--serif);
+            font-size: clamp(4rem, 12vw, 12rem);
+            font-weight: 400;
+            line-height: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title .line {
+            display: block;
+            overflow: visible;
+            padding-bottom: 0.1em;
+        }
+
+        .hero-title .line span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(100%);
+            animation: revealText 1s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        .hero-title .line:nth-child(1) span { animation-delay: 0.3s; }
+        .hero-title .line:nth-child(2) span { animation-delay: 0.45s; }
+
+        .hero-title .highlight {
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 400px;
+            line-height: 1.8;
+            opacity: 0;
+            animation: fadeSlideUp 0.8s ease forwards 0.8s;
+        }
+
+        .hero-subtitle-glow {
+            position: relative;
+            background: radial-gradient(circle 100px at var(--glow-x, -100px) var(--glow-y, -100px), 
+                #ffffff 0%, 
+                var(--text-muted) 40%, 
+                var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            transition: background 0.05s ease;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 4rem;
+            left: 4rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            opacity: 0;
+            animation: fadeSlideUp 0.8s ease forwards 1.2s;
+        }
+
+        .scroll-line {
+            width: 60px;
+            height: 1px;
+            background: var(--text-muted);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scroll-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--accent);
+            animation: scrollPulse 2s ease-in-out infinite;
+        }
+
+        .floating-element {
+            position: absolute;
+            font-family: var(--serif);
+            font-style: italic;
+            color: var(--accent-dim);
+            opacity: 0.15;
+            pointer-events: none;
+            transition: transform 0.1s ease-out;
+        }
+
+        .float-1 { top: 15%; right: 10%; font-size: 8rem; }
+        .float-2 { bottom: 20%; right: 25%; font-size: 6rem; }
+        .float-3 { top: 40%; left: 5%; font-size: 4rem; }
+
+        /* Marquee */
+        .marquee-wrapper {
+            padding: 3rem 0;
+            overflow: hidden;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .marquee {
+            display: flex;
+            animation: marquee 30s linear infinite;
+        }
+
+        .marquee-content {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            padding-right: 4rem;
+            white-space: nowrap;
+        }
+
+        .marquee-item {
+            font-family: var(--serif);
+            font-style: italic;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        .marquee-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        /* Sections */
+        .section {
+            padding: 8rem 4rem;
+            position: relative;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 4rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section-title {
+            font-family: var(--serif);
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 400;
+        }
+
+        .section-count {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* Project Cards */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .project-card {
+            position: relative;
+            aspect-ratio: 16 / 10;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+        }
+
+        .project-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.6s ease, filter 0.4s ease;
+        }
+
+        .project-card:hover .project-bg {
+            transform: scale(1.05);
+            filter: brightness(0.3);
+        }
+
+        .project-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .project-hover-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 2;
+        }
+
+        .project-card:hover .project-hover-content {
+            opacity: 1;
+        }
+
+        .project-hover-text {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .project-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            z-index: 3;
+        }
+
+        .project-category {
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .project-title {
+            font-family: var(--serif);
+            font-size: 2rem;
+            font-weight: 400;
+        }
+
+        /* Game Section */
+        .game-section {
+            padding: 4rem 4rem 6rem;
+            background: var(--bg-dark);
+            position: relative;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .game-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .game-score {
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .game-canvas-wrapper {
+            position: relative;
+            background: var(--bg-dark);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .game-overlay, .game-over-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 10, 10, 0.85);
+            transition: opacity 0.3s ease;
+        }
+
+        .game-overlay.hidden, .game-over-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .game-start-text, .game-over-text {
+            font-family: var(--mono);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 0.2em;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-over-text {
+            color: #ff4757;
+        }
+
+        .game-final-score {
+            font-family: var(--mono);
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .game-instruction {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .game-ground {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            border-radius: 0 0 8px 8px;
+        }
+
+        /* About Section */
+        .about-section {
+            background: var(--bg-secondary);
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 6rem;
+        }
+
+        .about-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 2rem;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .skill-tag {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+
+        .skill-tag:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .about-text {
+            font-family: var(--serif);
+            font-size: 2rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+
+        .about-text em {
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 4rem;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-number {
+            font-family: var(--serif);
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            text-align: center;
+            padding: 10rem 4rem;
+        }
+
+        .contact-cta {
+            font-family: var(--serif);
+            font-size: clamp(3rem, 10vw, 10rem);
+            color: var(--text-primary);
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .contact-cta:hover {
+            color: var(--accent);
+        }
+
+        .contact-cta::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s ease;
+        }
+
+        .contact-cta:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .contact-email {
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .contact-email a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .footer-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .social-links a {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* Animations */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes revealText {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { left: -100%; }
+            50% { left: 100%; }
+        }
+
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 4rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav { padding: 1.5rem 2rem; }
+            .nav-links { gap: 1.5rem; }
+            .hero { padding: 2rem; }
+            .section { padding: 4rem 2rem; }
+            .projects-grid { grid-template-columns: 1fr; }
+            .stats-row { flex-wrap: wrap; gap: 2rem; }
+            .game-section { padding: 3rem 2rem 4rem; }
+            .footer { flex-direction: column; gap: 1rem; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="#top" class="nav-logo magnetic">B3.</a>
+        <ul class="nav-links">
+            <li><a href="#work" class="magnetic">Work</a></li>
+            <li><a href="#about" class="magnetic">About</a></li>
+            <li><a href="#contact" class="magnetic">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="top">
+        <div class="hero-bg"></div>
+        <div class="hero-grain"></div>
+        
+        <div class="floating-element float-1" data-speed="0.05">✦</div>
+        <div class="floating-element float-2" data-speed="0.08">○</div>
+        <div class="floating-element float-3" data-speed="0.03">◈</div>
+        
+        <div class="hero-content">
+            <p class="hero-label">Marketing Strategist</p>
+            <h1 class="hero-title">
+                <span class="line"><span>Crypto, but</span></span>
+                <span class="line"><span>made <em class="highlight">creative</em></span></span>
+            </h1>
+            <p class="hero-subtitle hero-subtitle-glow">
+                More than a gm poster, less than a CEO. Believer in building culture through creativity and consistency. Some might say I'm occasionally funny.
+            </p>
+        </div>
+        
+        <div class="scroll-indicator">
+            <span class="scroll-line"></span>
+            <span>Scroll to explore</span>
+        </div>
+    </section>
+
+    <!-- Marquee -->
+    <div class="marquee-wrapper">
+        <div class="marquee">
+            <div class="marquee-content">
+                <span class="marquee-item">Brand Strategy</span>
+                <span class="marquee-dot"></span>
+                <span class="marquee-item">Content Creation</span>
+                <span class="marquee-dot"></span>
+                <span class="marquee-item">Campaign Development</span>
+                <span class="marquee-dot"></span>
+                <span class="marquee-item">Social Media</span>
+                <span class="marquee-dot"></span>
+                <span class="marquee-item">Growth Marketing</span>
+                <span class="marquee-dot"></span>
+                <span class="marquee-item">Creative Direction</span>
+                <span class="marquee-dot"></span>
+            </div>
+            <div class="marquee-content">
+                <span class="marquee-item">Brand Strategy</span>
+                <span class="marquee-dot"></span>
+                <span class="marquee-item">Content Creation</span>
+                <span class="marquee-dot"></span>
+                <span class="marquee-item">Campaign Development</span>
+                <span class="marquee-dot"></span>
+                <span class="marquee-item">Social Media</span>
+                <span class="marquee-dot"></span>
+                <span class="marquee-item">Growth Marketing</span>
+                <span class="marquee-dot"></span>
+                <span class="marquee-item">Creative Direction</span>
+                <span class="marquee-dot"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Section -->
+    <section class="game-section" id="game">
+        <div class="game-container">
+            <div class="game-header">
+                <span class="game-label">Take a break</span>
+                <span class="game-score">Score: <span id="score">0</span></span>
+            </div>
+            <div class="game-canvas-wrapper">
+                <canvas id="gameCanvas" width="800" height="200"></canvas>
+                <div class="game-overlay" id="gameOverlay">
+                    <div class="game-start-text">Can you make it to the moon?</div>
+                    <div class="game-instruction">Press SPACE to start</div>
+                </div>
+                <div class="game-over-overlay hidden" id="gameOverOverlay">
+                    <div class="game-over-text">REKT</div>
+                    <div class="game-final-score">Final Score: <span id="finalScore">0</span></div>
+                    <div class="game-instruction">Press SPACE to retry</div>
+                </div>
+            </div>
+            <div class="game-ground"></div>
+        </div>
+    </section>
+
+    <!-- Work Section -->
+    <section class="section" id="work">
+        <div class="section-header">
+            <h2 class="section-title">Selected Work</h2>
+            <span class="section-count">04 Projects</span>
+        </div>
+        
+        <div class="projects-grid">
+            <!-- Card 1: FactryLondon -->
+            <div class="project-card magnetic">
+                <div class="project-bg" style="background-image: url('./images/factry.jpg'); background-size: cover; background-position: center;"></div>
+                <div class="project-gradient"></div>
+                <div class="project-hover-content">
+                    <p class="project-hover-text">Specialising in bespoke garment creation in the heart of London. We work with artists and other niche clients to create clothing that works as part of a bigger function, whether this is for recognisability or marketing campaigns. My role within Factry involves our back-end marketing, and strategy to target clients in our niche.</p>
+                </div>
+                <div class="project-overlay">
+                    <p class="project-category">Marketing Lead</p>
+                    <h3 class="project-title">FactryLondon</h3>
+                </div>
+            </div>
+            
+            <!-- Card 2: TSA -->
+            <div class="project-card magnetic">
+                <div class="project-bg" style="background-image: url('./images/tsa.jpg'); background-size: cover; background-position: center;"></div>
+                <div class="project-gradient"></div>
+                <div class="project-hover-content">
+                    <p class="project-hover-text">With over 100,000 followers, TSA is an important page in its respected niche. I helped turn TSA's advantage from a distribution page to monetised community. Developing this means being both well informed, on-trend and creative in thought leadership. Amassing this following explores the relationship on social media between engaged users and informational content.</p>
+                </div>
+                <div class="project-overlay">
+                    <p class="project-category">Social Strategy</p>
+                    <h3 class="project-title">TSA</h3>
+                </div>
+            </div>
+            
+            <!-- Card 3: Web3 Various -->
+            <div class="project-card magnetic">
+                <div class="project-bg" style="background-image: url('./images/web3.jpg'); background-size: cover; background-position: center;"></div>
+                <div class="project-gradient"></div>
+                <div class="project-hover-content">
+                    <p class="project-hover-text">Beginning my journey as a core member for DogWifHat gave me the plunge into the deep end, helping to manage the coin's socials and presence as it grew into the project we knew it to become. Beyond memes, I've worked with DEXs and DeFi plays in their GTM and social media management.</p>
+                </div>
+                <div class="project-overlay">
+                    <p class="project-category">Marketing</p>
+                    <h3 class="project-title">Web3 Various</h3>
+                </div>
+            </div>
+            
+            <!-- Card 4: Brand Accounts -->
+            <div class="project-card magnetic">
+                <div class="project-bg" style="background-image: url('./images/brands.jpg'); background-size: cover; background-position: center;"></div>
+                <div class="project-gradient"></div>
+                <div class="project-hover-content">
+                    <p class="project-hover-text">Having run X accounts for brands across the Web3 space, improving metrics and managing campaigns, I've grown to now also contribute to growing web3 brands' presence on video format channels. The industry is showing stronger signs of growth across other mediums, and I'm excited to help more brands achieve this on Instagram.</p>
+                </div>
+                <div class="project-overlay">
+                    <p class="project-category">Social Manager</p>
+                    <h3 class="project-title">Brand Accounts</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section about-section" id="about">
+        <div class="about-content">
+            <div>
+                <p class="about-label">About</p>
+                <div class="skills-list">
+                    <span class="skill-tag magnetic">Brand Strategy</span>
+                    <span class="skill-tag magnetic">Content Marketing</span>
+                    <span class="skill-tag magnetic">Campaign Management</span>
+                    <span class="skill-tag magnetic">Social Media</span>
+                    <span class="skill-tag magnetic">Analytics</span>
+                    <span class="skill-tag magnetic">Creative Direction</span>
+                    <span class="skill-tag magnetic">Copywriting</span>
+                    <span class="skill-tag magnetic">Growth Hacking</span>
+                </div>
+            </div>
+            
+            <div>
+                <p class="about-text">
+                    My real passion lies in <em>advert and short-form content creation</em>. Creative partnerships, real-world product integration, <em>tangible experience marketing</em>. I aspire to take a fresh approach to the <em>standard playbook</em>. Heavily inspired by my <em>fashion roots</em>, bold campaigns and visual experiences.
+                </p>
+                
+                <div class="stats-row">
+                    <div class="stat">
+                        <div class="stat-number">30+</div>
+                        <div class="stat-label">Campaigns Launched</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">15M+</div>
+                        <div class="stat-label">Impressions Generated</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">4</div>
+                        <div class="stat-label">Channel Fluent</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section contact-section" id="contact">
+        <p class="about-label">Get in Touch</p>
+        <a href="/cdn-cgi/l/email-protection#fa9e8a9f9991929b978d958891ba9d979b9396d4999597" class="contact-cta magnetic">Let's talk</a>
+        <p class="contact-email">
+            Or drop me a line at <a href="/cdn-cgi/l/email-protection#7216021711191a131f051d001932151f131b1e5c111d1f"><span class="__cf_email__" data-cfemail="6e0a1e0b0d05060f0319011c052e09030f0702400d0103">[email&#160;protected]</span></a>
+        </p>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-text">Based around the equator</p>
+        <div class="social-links">
+            <a href="https://x.com/b3paystax" target="_blank" class="magnetic">Twitter</a>
+            <a href="https://www.linkedin.com/in/dom-peckham-228bb8193/" target="_blank" class="magnetic">LinkedIn</a>
+            <a href="https://www.instagram.com/brechito_/" target="_blank" class="magnetic">Instagram</a>
+            <a href="https://t.me/blocksquared" target="_blank" class="magnetic">Telegram</a>
+        </div>
+    </footer>
+
+    <!-- Cursor elements at end of body -->
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            cursorDot.style.left = mouseX + 'px';
+            cursorDot.style.top = mouseY + 'px';
+            
+            document.querySelectorAll('.floating-element').forEach(el => {
+                const speed = parseFloat(el.dataset.speed) || 0.05;
+                const x = (window.innerWidth / 2 - mouseX) * speed;
+                const y = (window.innerHeight / 2 - mouseY) * speed;
+                el.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.15;
+            cursorY += (mouseY - cursorY) * 0.15;
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        const hoverElements = document.querySelectorAll('a, button, .project-card, .skill-tag');
+        hoverElements.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+        });
+
+        const magneticElements = document.querySelectorAll('.magnetic');
+        magneticElements.forEach(el => {
+            el.addEventListener('mousemove', (e) => {
+                const rect = el.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                el.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+            });
+            el.addEventListener('mouseleave', () => {
+                el.style.transform = 'translate(0, 0)';
+            });
+        });
+
+        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.project-card, .stat, .about-text').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(40px)';
+            el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            observer.observe(el);
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        const heroSubtitle = document.querySelector('.hero-subtitle-glow');
+        if (heroSubtitle) {
+            document.addEventListener('mousemove', (e) => {
+                const rect = heroSubtitle.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                if (x >= -50 && x <= rect.width + 50 && y >= -50 && y <= rect.height + 50) {
+                    heroSubtitle.style.setProperty('--glow-x', x + 'px');
+                    heroSubtitle.style.setProperty('--glow-y', y + 'px');
+                } else {
+                    heroSubtitle.style.setProperty('--glow-x', '-100px');
+                    heroSubtitle.style.setProperty('--glow-y', '-100px');
+                }
+            });
+        }
+
+        // ===== TO THE MOON MINI GAME =====
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameOverlay = document.getElementById('gameOverlay');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const scoreDisplay = document.getElementById('score');
+        const finalScoreDisplay = document.getElementById('finalScore');
+
+        let gameRunning = false, gameOver = false, score = 0, frameCount = 0;
+        const rocket = { x: 80, y: 150, width: 30, height: 20, velocityY: 0, gravity: 0.7, jumpStrength: -14, grounded: true };
+        let obstacles = [], obstacleTimer = 0;
+        const groundY = 170;
+        let gameSpeed = 7;
+
+        function drawRocket() {
+            ctx.fillStyle = '#c8ff00';
+            ctx.fillRect(rocket.x, rocket.y, 20, 12);
+            ctx.beginPath();
+            ctx.moveTo(rocket.x + 20, rocket.y);
+            ctx.lineTo(rocket.x + 30, rocket.y + 6);
+            ctx.lineTo(rocket.x + 20, rocket.y + 12);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillRect(rocket.x - 5, rocket.y - 3, 8, 5);
+            ctx.fillRect(rocket.x - 5, rocket.y + 10, 8, 5);
+            if (frameCount % 6 < 3) {
+                ctx.fillStyle = '#ff6b35';
+                ctx.fillRect(rocket.x - 10, rocket.y + 3, 8, 6);
+            }
+        }
+
+        function drawObstacle(obs) {
+            ctx.fillStyle = '#ff4757';
+            ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+            ctx.fillStyle = '#ff6b81';
+            ctx.fillRect(obs.x + obs.width/2 - 1, obs.y - 8, 2, 8);
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            rocket.velocityY += rocket.gravity;
+            rocket.y += rocket.velocityY;
+            if (rocket.y >= groundY - rocket.height) {
+                rocket.y = groundY - rocket.height;
+                rocket.velocityY = 0;
+                rocket.grounded = true;
+            }
+            if (rocket.y < 0) {
+                rocket.y = 0;
+                rocket.velocityY = 0;
+            }
+            drawRocket();
+            obstacleTimer++;
+            const spawnRate = Math.max(50, 70 - Math.floor(score / 5) * 5);
+            if (obstacleTimer > spawnRate) {
+                const rand = Math.random();
+                if (rand < 0.4) {
+                    const height = 30 + Math.random() * 50;
+                    obstacles.push({ x: canvas.width, y: groundY - height, width: 15, height: height, floating: false });
+                } else if (rand < 0.7) {
+                    const height = 25 + Math.random() * 30;
+                    const floatY = 40 + Math.random() * 60;
+                    obstacles.push({ x: canvas.width, y: floatY, width: 15, height: height, floating: true });
+                } else {
+                    const height1 = 25 + Math.random() * 35;
+                    obstacles.push({ x: canvas.width, y: groundY - height1, width: 15, height: height1, floating: false });
+                    const height2 = 20 + Math.random() * 25;
+                    obstacles.push({ x: canvas.width + 40, y: 50 + Math.random() * 40, width: 15, height: height2, floating: true });
+                }
+                obstacleTimer = 0;
+            }
+            gameSpeed = 7 + Math.floor(score / 10) * 0.5;
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= gameSpeed;
+                drawObstacle(obstacles[i]);
+                if (rocket.x < obstacles[i].x + obstacles[i].width &&
+                    rocket.x + 25 > obstacles[i].x &&
+                    rocket.y < obstacles[i].y + obstacles[i].height &&
+                    rocket.y + rocket.height > obstacles[i].y) {
+                    endGame();
+                    return;
+                }
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                    score++;
+                    scoreDisplay.textContent = score;
+                }
+            }
+            frameCount++;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            gameRunning = true;
+            gameOver = false;
+            score = 0;
+            frameCount = 0;
+            obstacles = [];
+            gameSpeed = 7;
+            rocket.y = 150;
+            rocket.velocityY = 0;
+            scoreDisplay.textContent = '0';
+            gameOverlay.classList.add('hidden');
+            gameOverOverlay.classList.add('hidden');
+            gameLoop();
+        }
+
+        function endGame() {
+            gameRunning = false;
+            gameOver = true;
+            finalScoreDisplay.textContent = score;
+            gameOverOverlay.classList.remove('hidden');
+        }
+
+        function jump() {
+            if (rocket.grounded || rocket.y > 50) {
+                rocket.velocityY = rocket.jumpStrength;
+                rocket.grounded = false;
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!gameRunning && !gameOver) startGame();
+                else if (gameOver) startGame();
+                else if (gameRunning) jump();
+            }
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!gameRunning && !gameOver) startGame();
+            else if (gameOver) startGame();
+            else if (gameRunning) jump();
+        });
+
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    </script>
+</body>
+</html>
